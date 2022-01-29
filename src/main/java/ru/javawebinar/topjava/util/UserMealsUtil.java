@@ -39,7 +39,7 @@ public class UserMealsUtil {
         return mealWithExcesses;
     }
 
-    public static void recursionFilter(List<UserMeal> meals, LocalTime startTime, LocalTime endTime,
+    private static void recursionFilter(List<UserMeal> meals, LocalTime startTime, LocalTime endTime,
                                        int caloriesPerDay, int currentIndex, Map<LocalDate, Integer> caloriesDateGrouped,
                                        List<UserMealWithExcess> mealWithExcesses) {
         if (currentIndex == meals.size()) {
