@@ -34,9 +34,14 @@ public class MealServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        final String operation = request.getParameter("action");
+        String operation = request.getParameter("action");
+        if (operation == null) {
+            LOG.info("Get all meals from storage");
+            request.setAttribute("meals", MealsUtil.filteredByStreams(storage.getAll(), LocalTime.of(0, 0), LocalTime.of(23, 59), CALORIES_PER_DAY));
+            request.getRequestDispatcher("/meals.jsp").forward(request, response);
+        }
         final Integer id = getID(request);
-        switch (Objects.requireNonNullElse(operation, "null")) {
+        switch (Objects.requireNonNull(operation)) {
             case "delete":
                 LOG.info("Delete meal: {} ", id);
                 storage.delete(id);
@@ -54,11 +59,8 @@ public class MealServlet extends HttpServlet {
                 request.setAttribute("meal", meal);
                 request.getRequestDispatcher("editMeal.jsp").forward(request, response);
                 break;
-            case "null":
             default:
-                LOG.info("Get all meals from storage");
-                request.setAttribute("meals", MealsUtil.filteredByStreams(storage.getAll(), LocalTime.of(0, 0), LocalTime.of(23, 59), CALORIES_PER_DAY));
-                request.getRequestDispatcher("/meals.jsp").forward(request, response);
+                response.sendRedirect("meals");
         }
     }
 
