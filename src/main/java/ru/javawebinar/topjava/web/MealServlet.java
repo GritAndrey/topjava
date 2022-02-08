@@ -40,17 +40,16 @@ public class MealServlet extends HttpServlet {
             request.setAttribute("meals", MealsUtil.filteredByStreams(storage.getAll(), LocalTime.of(0, 0), LocalTime.of(23, 59), CALORIES_PER_DAY));
             request.getRequestDispatcher("/meals.jsp").forward(request, response);
         }
+        final Integer id = getID(request);
         switch (Objects.requireNonNull(operation)) {
             case "delete":
-                String mealID = request.getParameter("id");
-                LOG.info("Delete meal: {} ", mealID);
-                storage.delete(Integer.parseInt(mealID));
+                LOG.info("Delete meal: {} ", id);
+                storage.delete(id);
                 response.sendRedirect("meals");
                 return;
             case "update":
-                mealID = request.getParameter("id");
-                LOG.info("Update meal: {} ", mealID);
-                Meal meal = storage.get(Integer.parseInt(mealID));
+                Meal meal = storage.get(id);
+                LOG.info("Update meal: {} ", meal.getId());
                 request.setAttribute("meal", meal);
                 request.getRequestDispatcher("editMeal.jsp").forward(request, response);
                 break;
@@ -63,7 +62,6 @@ public class MealServlet extends HttpServlet {
             default:
                 response.sendRedirect("meals");
         }
-
     }
 
     @Override
@@ -72,9 +70,13 @@ public class MealServlet extends HttpServlet {
         final LocalDateTime dateTime = LocalDateTime.parse(request.getParameter("date") + 'T' + request.getParameter("time"));
         final String description = request.getParameter("description");
         final int calories = Integer.parseInt(request.getParameter("calories"));
-        String mealID = (request.getParameter("id"));
-        final Meal meal = new Meal(dateTime, description, calories, mealID == null || mealID.isEmpty() ? null : Integer.parseInt(mealID));
+        final Meal meal = new Meal(dateTime, description, calories, getID(request));
         storage.save(meal);
         response.sendRedirect("meals");
+    }
+
+    private Integer getID(HttpServletRequest request) {
+        final String id = request.getParameter("id");
+        return id == null || id.isEmpty() ? null : Integer.parseInt(id);
     }
 }
