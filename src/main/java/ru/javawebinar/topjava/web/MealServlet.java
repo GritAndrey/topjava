@@ -14,66 +14,54 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.Month;
-import java.util.Objects;
+import java.time.temporal.ChronoUnit;
 
 public class MealServlet extends HttpServlet {
     public static final int CALORIES_PER_DAY = 2000;
-    private static final Logger LOG = LoggerFactory.getLogger(MealServlet.class);
-    private static final MealStorage storage = new MemoryMealStorage();
-
-    static {
-        storage.save(new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 10, 0), "Завтрак", 500));
-        storage.save(new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 13, 0), "Обед", 1000));
-        storage.save(new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 20, 0), "Ужин", 500));
-        storage.save(new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 0, 0), "Еда на граничное значение", 100));
-        storage.save(new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 10, 0), "Завтрак", 1000));
-        storage.save(new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 13, 0), "Обед", 500));
-        storage.save(new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 20, 0), "Ужин", 410));
-    }
+    private static final Logger log = LoggerFactory.getLogger(MealServlet.class);
+    private final MealStorage storage = new MemoryMealStorage();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String operation = request.getParameter("action");
-        if (operation == null) {
-            LOG.info("Get all meals from storage");
-            request.setAttribute("meals", MealsUtil.filteredByStreams(storage.getAll(), LocalTime.of(0, 0), LocalTime.of(23, 59), CALORIES_PER_DAY));
-            request.getRequestDispatcher("/meals.jsp").forward(request, response);
-        }
-        switch (Objects.requireNonNull(operation)) {
+        switch (operation == null ? "null" : operation) {
             case "delete":
-                String mealID = request.getParameter("id");
-                LOG.info("Delete meal: {} ", mealID);
-                storage.delete(Integer.parseInt(mealID));
+                String mealId = request.getParameter("id");
+                log.info("Delete meal: {} ", mealId);
+                storage.delete(Integer.parseInt(mealId));
                 response.sendRedirect("meals");
                 return;
             case "update":
-                mealID = request.getParameter("id");
-                LOG.info("Update meal: {} ", mealID);
-                Meal meal = storage.get(Integer.parseInt(mealID));
+                mealId = request.getParameter("id");
+                log.info("Update meal: {} ", mealId);
+                Meal meal = storage.get(Integer.parseInt(mealId));
                 request.setAttribute("meal", meal);
-                request.getRequestDispatcher("editMeal.jsp").forward(request, response);
+                request.getRequestDispatcher("/editMeal.jsp").forward(request, response);
                 break;
             case "add":
-                meal = new Meal(LocalDateTime.now(), "", 0);
-                LOG.info("Add new");
+                meal = new Meal(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), "", 0);
+                log.info("Add new");
                 request.setAttribute("meal", meal);
-                request.getRequestDispatcher("editMeal.jsp").forward(request, response);
+                request.getRequestDispatcher("/editMeal.jsp").forward(request, response);
                 break;
+            case "null":
+                log.info("Get all meals from storage");
+                request.setAttribute("meals", MealsUtil.filteredByStreams(storage.getAll(), LocalTime.MIN, LocalTime.MAX, CALORIES_PER_DAY));
+                request.getRequestDispatcher("/meals.jsp").forward(request, response);
             default:
                 response.sendRedirect("meals");
         }
-
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
-        final LocalDateTime dateTime = LocalDateTime.parse(request.getParameter("date") + 'T' + request.getParameter("time"));
+        final LocalDateTime dateTime = LocalDateTime.parse(request.getParameter("dateTime"));
         final String description = request.getParameter("description");
         final int calories = Integer.parseInt(request.getParameter("calories"));
-        String mealID = (request.getParameter("id"));
-        final Meal meal = new Meal(dateTime, description, calories, mealID == null || mealID.isEmpty() ? null : Integer.parseInt(mealID));
+        String mealId = (request.getParameter("id"));
+        final Meal meal = new Meal(mealId == null || mealId.isEmpty() ? null : Integer.parseInt(mealId), dateTime, description, calories);
+        log.info("doPost {}", meal);
         storage.save(meal);
         response.sendRedirect("meals");
     }

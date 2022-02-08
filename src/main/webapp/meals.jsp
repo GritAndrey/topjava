@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="f" uri="http://java.sun.com/jsp/jstl/functions" %>
 <html>
 <head>
     <title>Meals</title>
@@ -11,7 +12,7 @@
     <div class="container">
         <h1>User Meals</h1>
         <h3><a href="index.html">Home</a></h3>
-        <a href="meals?&action=add">Add new</a>
+        <a href="meals?action=add">Add new</a>
     </div>
     <div class="container">
 
@@ -29,12 +30,8 @@
             <jsp:useBean id="meals" scope="request" type="java.util.List"/>
             <c:forEach items="${meals}" var="meal">
                 <jsp:useBean id="meal" type="ru.javawebinar.topjava.model.MealTo"/>
-                <tr style="color:
-                <c:if test="${meal.excess}">red </c:if>
-                <c:if test="${!meal.excess}">green </c:if>
-                        ">
-                    <td><%=meal.getDate()%>
-                    </td>
+                <tr style="color:${meal.excess ? "red": "green"}">
+                    <td>${f:replace(meal.dateTime, "T", " ")}</td>
                     <td>${meal.description}</td>
                     <td>${meal.calories}</td>
                     <td><a href="meals?id=${meal.id}&action=update">Update</a></td>

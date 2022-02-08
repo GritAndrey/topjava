@@ -5,6 +5,7 @@ import ru.javawebinar.topjava.model.Meal;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -12,19 +13,31 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class MemoryMealStorage implements MealStorage {
     private final Map<Integer, Meal> storage = new ConcurrentHashMap<>();
+    private final AtomicInteger counter = new AtomicInteger(0);
 
-    private AtomicInteger counter = new AtomicInteger(0);
+    {
+        Arrays.asList(
+                new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 10, 0), "Завтрак", 500),
+                new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 13, 0), "Обед", 1000),
+                new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 20, 0), "Ужин", 500),
+                new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 0, 0), "Еда на граничное значение", 100),
+                new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 10, 0), "Завтрак", 1000),
+                new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 13, 0), "Обед", 500),
+                new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 20, 0), "Ужин", 410)
+        ).forEach(this::save);
+    }
+
     @Override
     public Meal save(Meal meal) {
-        if (meal.getId() == null) {
+        if (meal.getId() == null || !storage.containsKey(meal.getId())) {
             meal.setId(counter.incrementAndGet());
         }
-        update(meal);
+        storage.put(meal.getId(), meal);
         return meal;
     }
 
     @Override
-    public Meal get(Integer id) {
+    public Meal get(int id) {
         return storage.get(id);
     }
 
@@ -33,13 +46,8 @@ public class MemoryMealStorage implements MealStorage {
         return new ArrayList<>(storage.values());
     }
 
-
-    private void update(Meal meal) {
-        storage.put(meal.getId(), meal);
-    }
-
     @Override
-    public void delete(Integer id) {
+    public void delete(int id) {
         storage.remove(id);
     }
 }
