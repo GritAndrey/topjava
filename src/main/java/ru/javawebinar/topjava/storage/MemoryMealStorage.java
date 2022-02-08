@@ -29,12 +29,13 @@ public class MemoryMealStorage implements MealStorage {
 
     @Override
     public Meal save(Meal meal) {
-        final Integer id = meal.getId();
-        if (id == null || !storage.containsKey(id)) {
+
+        if (meal.getId() == null) {
             meal.setId(counter.incrementAndGet());
+            storage.put(meal.getId(), meal);
+            return meal;
         }
-        storage.put(meal.getId(), meal);
-        return meal;
+        return storage.computeIfPresent(meal.getId(), (id, old) -> meal);
     }
 
     @Override

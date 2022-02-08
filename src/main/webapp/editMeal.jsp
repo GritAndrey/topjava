@@ -11,6 +11,7 @@
 <body>
 <div class="container">
     <h1>${meal.id == null ? "Add" : "Edit"} meal</h1>
+    <h3><a href="index.html">Home</a></h3>
     <form method="post" action="meals">
         <input class="form-control" type="hidden" name="id" value="${meal.id}">
         <dl>

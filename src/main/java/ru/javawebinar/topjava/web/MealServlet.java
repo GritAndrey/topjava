@@ -30,7 +30,7 @@ public class MealServlet extends HttpServlet {
                 log.info("Delete meal: {} ", mealId);
                 storage.delete(Integer.parseInt(mealId));
                 response.sendRedirect("meals");
-                return;
+                break;
             case "update":
                 mealId = request.getParameter("id");
                 log.info("Update meal: {} ", mealId);
@@ -45,11 +45,11 @@ public class MealServlet extends HttpServlet {
                 request.getRequestDispatcher("/editMeal.jsp").forward(request, response);
                 break;
             case "null":
+            default:
                 log.info("Get all meals from storage");
                 request.setAttribute("meals", MealsUtil.filteredByStreams(storage.getAll(), LocalTime.MIN, LocalTime.MAX, CALORIES_PER_DAY));
                 request.getRequestDispatcher("/meals.jsp").forward(request, response);
-            default:
-                response.sendRedirect("meals");
+                break;
         }
     }
 
