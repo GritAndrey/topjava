@@ -10,6 +10,7 @@ public class Meal {
     private final int calories;
     private Integer id;
 
+
     public Meal(LocalDateTime dateTime, String description, int calories) {
         this(null, dateTime, description, calories);
     }
@@ -52,10 +53,10 @@ public class Meal {
     @Override
     public String toString() {
         return "Meal{" +
-                "dateTime=" + dateTime +
+                "id=" + id +
+                ", dateTime=" + dateTime +
                 ", description='" + description + '\'' +
                 ", calories=" + calories +
-                ", id=" + id +
                 '}';
     }
 }

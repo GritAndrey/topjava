@@ -19,7 +19,14 @@ import java.time.temporal.ChronoUnit;
 public class MealServlet extends HttpServlet {
     public static final int CALORIES_PER_DAY = 2000;
     private static final Logger log = LoggerFactory.getLogger(MealServlet.class);
-    private final MealStorage storage = new MemoryMealStorage();
+    MealStorage storage;
+
+    @Override
+    public void init() throws ServletException {
+        storage = new MemoryMealStorage();
+        log.info("init");
+    }
+
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -30,7 +37,7 @@ public class MealServlet extends HttpServlet {
                 log.info("Delete meal: {} ", mealId);
                 storage.delete(Integer.parseInt(mealId));
                 response.sendRedirect("meals");
-                break;
+                return;
             case "update":
                 mealId = request.getParameter("id");
                 log.info("Update meal: {} ", mealId);

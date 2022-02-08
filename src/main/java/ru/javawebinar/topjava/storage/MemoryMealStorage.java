@@ -29,7 +29,6 @@ public class MemoryMealStorage implements MealStorage {
 
     @Override
     public Meal save(Meal meal) {
-
         if (meal.getId() == null) {
             meal.setId(counter.incrementAndGet());
             storage.put(meal.getId(), meal);
