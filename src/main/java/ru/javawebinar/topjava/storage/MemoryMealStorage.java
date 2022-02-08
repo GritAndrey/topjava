@@ -2,6 +2,8 @@ package ru.javawebinar.topjava.storage;
 
 import ru.javawebinar.topjava.model.Meal;
 
+import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -12,13 +14,12 @@ public class MemoryMealStorage implements MealStorage {
     private final Map<Integer, Meal> storage = new ConcurrentHashMap<>();
 
     private AtomicInteger counter = new AtomicInteger(0);
-
     @Override
     public Meal save(Meal meal) {
         if (meal.getId() == null) {
             meal.setId(counter.incrementAndGet());
-            storage.put(meal.getId(), meal);
         }
+        update(meal);
         return meal;
     }
 
@@ -30,6 +31,11 @@ public class MemoryMealStorage implements MealStorage {
     @Override
     public List<Meal> getAll() {
         return new ArrayList<>(storage.values());
+    }
+
+
+    private void update(Meal meal) {
+        storage.put(meal.getId(), meal);
     }
 
     @Override
