@@ -3,44 +3,60 @@ package ru.javawebinar.topjava.repository.inmemory;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealRepository;
 import ru.javawebinar.topjava.util.MealsUtil;
+import ru.javawebinar.topjava.web.SecurityUtil;
 
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class InMemoryMealRepository implements MealRepository {
-    private final Map<Integer, Meal> repository = new ConcurrentHashMap<>();
+    private final Map<Integer, Map<Integer, Meal>> usersMeals = new ConcurrentHashMap<>();
     private final AtomicInteger counter = new AtomicInteger(0);
 
     {
-        MealsUtil.meals.forEach(this::save);
+        MealsUtil.meals.forEach(meal -> save(meal, SecurityUtil.authUserId()));
     }
 
     @Override
-    public Meal save(Meal meal) {
-        if (meal.isNew()) {
+    public boolean delete(int id, int userId) {
+        final Map<Integer, Meal> userMeals = usersMeals.get(userId);
+        return userMeals != null && userMeals.remove(id) != null;
+    }
+
+    @Override
+    public Meal save(Meal meal, int userId) {
+        Map<Integer, Meal> userMeals = usersMeals.getOrDefault(userId, new HashMap<>());
+        if (meal != null && meal.isNew()) {
             meal.setId(counter.incrementAndGet());
-            repository.put(meal.getId(), meal);
+            userMeals.put(meal.getId(), meal);
+            usersMeals.put(userId, userMeals);
             return meal;
         }
-        // handle case: update, but not present in storage
-        return repository.computeIfPresent(meal.getId(), (id, oldMeal) -> meal);
+        return userMeals.computeIfPresent(Objects.requireNonNull(meal).getId(), (id, old) -> meal);
     }
 
     @Override
-    public boolean delete(int id) {
-        return repository.remove(id) != null;
+    public Meal get(int id, int userId) {
+        final Map<Integer, Meal> userMeals = usersMeals.get(userId);
+        return userMeals == null ? null : userMeals.get(id);
     }
 
     @Override
-    public Meal get(int id) {
-        return repository.get(id);
+    public List<Meal> getAll(int userId) {
+        return predicateFilter(userId, meal -> true);
     }
 
-    @Override
-    public Collection<Meal> getAll() {
-        return repository.values();
+    private List<Meal> predicateFilter(int userId, Predicate<Meal> filter) {
+        Map<Integer, Meal> userMeals = usersMeals.get(userId);
+        if (userMeals == null) {
+            return new ArrayList<>();
+        }
+        return userMeals.values().stream()
+                .filter(filter)
+                .sorted(Comparator.comparing(Meal::getDateTime).reversed())
+                .collect(Collectors.toList());
     }
 }
 
