@@ -18,14 +18,19 @@ import java.util.Objects;
 
 public class MealServlet extends HttpServlet {
     private static final Logger log = LoggerFactory.getLogger(MealServlet.class);
-
+    private ConfigurableApplicationContext appCtx;
     private MealRestController controller;
 
     @Override
     public void init() {
-        try (ConfigurableApplicationContext appCtx = new ClassPathXmlApplicationContext("spring/spring-app.xml")) {
-            controller = appCtx.getBean(MealRestController.class);
-        }
+        appCtx = new ClassPathXmlApplicationContext("spring/spring-app.xml");
+        controller = appCtx.getBean(MealRestController.class);
+    }
+
+    @Override
+    public void destroy() {
+        appCtx.close();
+        super.destroy();
     }
 
     @Override
@@ -55,7 +60,7 @@ public class MealServlet extends HttpServlet {
             case "delete":
                 int id = getId(request);
                 log.info("Delete {}", id);
-                controller.delete(id, SecurityUtil.authUserId());
+                controller.delete(id);
                 response.sendRedirect("meals");
                 break;
             case "create":

@@ -29,14 +29,14 @@ public class InMemoryMealRepository implements MealRepository {
 
     @Override
     public Meal save(Meal meal, int userId) {
-        Map<Integer, Meal> userMeals = usersMeals.getOrDefault(userId, new HashMap<>());
-        if (meal != null && meal.isNew()) {
+        Map<Integer, Meal> userMeals = usersMeals.computeIfAbsent(userId, u -> new ConcurrentHashMap<>());
+        if (meal.isNew()) {
             meal.setId(counter.incrementAndGet());
             userMeals.put(meal.getId(), meal);
             usersMeals.put(userId, userMeals);
             return meal;
         }
-        return userMeals.computeIfPresent(Objects.requireNonNull(meal).getId(), (id, old) -> meal);
+        return userMeals.computeIfPresent(meal.getId(), (id, old) -> meal);
     }
 
     @Override
@@ -53,7 +53,7 @@ public class InMemoryMealRepository implements MealRepository {
     private List<Meal> predicateFilter(int userId, Predicate<Meal> filter) {
         Map<Integer, Meal> userMeals = usersMeals.get(userId);
         if (userMeals == null) {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
         return userMeals.values().stream()
                 .filter(filter)

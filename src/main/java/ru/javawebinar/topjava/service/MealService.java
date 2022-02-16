@@ -5,7 +5,6 @@ import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealRepository;
 import ru.javawebinar.topjava.to.MealTo;
 import ru.javawebinar.topjava.util.MealsUtil;
-import ru.javawebinar.topjava.util.exception.NotFoundException;
 import ru.javawebinar.topjava.web.SecurityUtil;
 
 import java.util.List;
@@ -33,11 +32,11 @@ public class MealService {
         return checkNotFoundWithId(repository.get(id, userId), id);
     }
 
-    public void update(Meal meal, int userId) throws NotFoundException {
+    public void update(Meal meal, int userId) {
         checkNotFoundWithId(repository.save(meal, userId), meal.getId());
     }
 
-    public List<MealTo> getAll(int userId) {
-        return MealsUtil.getTos(repository.getAll(userId), SecurityUtil.authUserCaloriesPerDay());
+    public List<MealTo> getAll(int userId, int calories) {
+        return MealsUtil.getTos(repository.getAll(userId), calories);
     }
 }
