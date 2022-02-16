@@ -8,7 +8,11 @@ import ru.javawebinar.topjava.util.MealsUtil;
 import ru.javawebinar.topjava.web.SecurityUtil;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.time.Month;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
@@ -21,6 +25,8 @@ public class InMemoryMealRepository implements MealRepository {
 
     {
         MealsUtil.meals.forEach(meal -> save(meal, SecurityUtil.authUserId()));
+        save(new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 10, 0), "Завтрак", 500), 2);
+        save(new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 13, 0), "Обед", 1000), 2);
     }
 
     @Override
@@ -54,7 +60,7 @@ public class InMemoryMealRepository implements MealRepository {
 
     @Override
     public List<Meal> getAllByDate(int userId, LocalDateTime start, LocalDateTime end) {
-        return predicateFilter(userId, meal -> DateTimeUtil.isBetweenHalfOpen(meal.getDateTime(),start,end));
+        return predicateFilter(userId, meal -> DateTimeUtil.isBetweenHalfOpen(meal.getDateTime(), start, end));
     }
 
     private List<Meal> predicateFilter(int userId, Predicate<Meal> filter) {
