@@ -42,10 +42,8 @@ public class MealService {
         return MealsUtil.getTos(repository.getAll(userId), calories);
     }
 
-    public List<MealTo> getAllByDate(int authUserId, LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime, int calories) {
-        //#TODO null check
-        final List<Meal> allByDate = repository.getAllByDate(authUserId, DateTimeUtil.checkDate(startDate,startTime), DateTimeUtil.checkDate(endDate,endTime));
-        //#TODO What if endTime < startTime?
+    public List<MealTo> getAllByDate(int UserId, LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime, int calories) {
+        final List<Meal> allByDate = repository.getAllByDate(UserId, DateTimeUtil.getDate(startDate, 0), DateTimeUtil.getDate(endDate, 1));
         return MealsUtil.getFilteredTos(allByDate, calories, startTime, endTime);
     }
 }

@@ -36,7 +36,6 @@ public class InMemoryUserRepository implements UserRepository {
         return repository.computeIfPresent(user.getId(), (id, oldUser) -> user);
     }
 
-
     @Override
     public User get(int id) {
         log.info("get {}", id);

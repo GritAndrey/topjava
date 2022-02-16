@@ -81,11 +81,10 @@ public class MealServlet extends HttpServlet {
                 LocalTime startTime = parseLocalTime(request.getParameter("startTime"));
                 LocalDate endDate = parseLocalDate(request.getParameter("endDate"));
                 LocalTime endTime = parseLocalTime(request.getParameter("endTime"));
-                log.info("getAllByDate: startDate: {} startTime: {} endDate: {}  endTime: {}"
-                        , startDate, startTime, endDate, endTime);
-                log.info("getAll");
+                log.info("getAllByDate: startDate: {} startTime: {} endDate: {}  endTime: {}",
+                        startDate, startTime, endDate, endTime);
                 request.setAttribute("meals",
-                        controller.getAllByDate(startDate,startTime,endDate,endTime));
+                        controller.getAllByDate(startDate, startTime, endDate, endTime));
                 request.getRequestDispatcher("/meals.jsp").forward(request, response);
                 break;
             case "all":

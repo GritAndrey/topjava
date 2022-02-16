@@ -4,24 +4,28 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 
 public class DateTimeUtil {
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
-    public static <T extends Comparable<T>> boolean isBetweenHalfOpen(T lt, T startTime, T endTime) {
-        return lt.compareTo(startTime) >= 0 && lt.compareTo(endTime) < 0;
+    public static <T extends Comparable<T>> boolean isBetweenHalfOpen(T value, T start, T end) {
+        return (start == null || value.compareTo(start) >= 0) && (end == null || value.compareTo(end) < 0);
     }
 
-    public static LocalDateTime checkDate(LocalDate localDate, LocalTime localTime) {
-        return LocalDateTime.of(localDate, localTime);
+    public static LocalDateTime getDate(LocalDate localDate, int startEnd) {
+        if (startEnd == 0) {
+            return localDate != null ? localDate.atStartOfDay() : LocalDateTime.of(LocalDate.MIN, LocalTime.MIN);
+        }
+        return localDate != null ? localDate.plus(1, ChronoUnit.DAYS).atStartOfDay() : LocalDateTime.of(LocalDate.MAX, LocalTime.MAX);
     }
 
     public static LocalDate parseLocalDate(String str) {
-        return LocalDate.parse(str);
+        return str == null || str.isEmpty() ? null : LocalDate.parse(str);
     }
 
     public static LocalTime parseLocalTime(String str) {
-        return LocalTime.parse(str);
+        return str == null || str.isEmpty() ? null : LocalTime.parse(str);
     }
 
     public static String toString(LocalDateTime ldt) {
