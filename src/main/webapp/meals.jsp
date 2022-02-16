@@ -53,7 +53,7 @@
             <th></th>
         </tr>
         </thead>
-        <c:forEach items="${meals}" var="meal">
+        <c:forEach items="${requestScope.meals}" var="meal">
             <jsp:useBean id="meal" type="ru.javawebinar.topjava.to.MealTo"/>
             <tr class="${meal.excess ? 'excess' : 'normal'}">
                 <td>
