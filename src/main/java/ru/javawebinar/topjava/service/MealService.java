@@ -43,7 +43,7 @@ public class MealService {
     }
 
     public List<MealTo> getAllByDate(int UserId, LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime, int calories) {
-        final List<Meal> allByDate = repository.getAllByDate(UserId, DateTimeUtil.getDate(startDate, 0), DateTimeUtil.getDate(endDate, 1));
+        final List<Meal> allByDate = repository.getAllByDate(UserId, DateTimeUtil.getDateOrMin(startDate), DateTimeUtil.getDateOrMax(endDate));
         return MealsUtil.getFilteredTos(allByDate, calories, startTime, endTime);
     }
 }

@@ -13,10 +13,11 @@ public class DateTimeUtil {
         return (start == null || value.compareTo(start) >= 0) && (end == null || value.compareTo(end) < 0);
     }
 
-    public static LocalDateTime getDate(LocalDate localDate, int startEnd) {
-        if (startEnd == 0) {
-            return localDate != null ? localDate.atStartOfDay() : LocalDateTime.of(LocalDate.MIN, LocalTime.MIN);
-        }
+    public static LocalDateTime getDateOrMin(LocalDate localDate) {
+        return localDate != null ? localDate.atStartOfDay() : LocalDateTime.of(LocalDate.MIN, LocalTime.MIN);
+    }
+
+    public static LocalDateTime getDateOrMax(LocalDate localDate) {
         return localDate != null ? localDate.plus(1, ChronoUnit.DAYS).atStartOfDay() : LocalDateTime.of(LocalDate.MAX, LocalTime.MAX);
     }
 
